@@ -1,13 +1,9 @@
 from typing import List
-
 import numpy as np 
-import pandas as pd
 import matplotlib.pyplot as plt 
 from tqdm import tqdm
 
 from segmentation_models_pytorch.losses import DiceLoss # for image segmentation task. It supports binary, multiclass and multilabel cases
-
-from sklearn.model_selection import train_test_split
 import torch 
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -15,26 +11,31 @@ from torchsummary import summary
 
 from segment.helper import show_image, plot_loss
 from segment.nn_models import UNet
-from segment.dataset import CustomDataset
+from segment.datasets import (get_custom_train_test_datasets,
+                              get_pascal_train_test_datasets,)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # ----- Parameters
-CSV_FILE: str = '/workspace/data/Human-Segmentation-Dataset-master/train.csv'
-DATA_DIR: str = '/workspace/data/'
+# Data
+DataSets: List[str] = ["custom", "pascal"] 
+data_set : str = DataSets[1]
 
-epochs: int = 100
+# Trainer
+epochs: int = 50
 batch_size: int = 1
 
+# optimizer parameters
 amp: bool = True
 gradient_clipping: float = 1.0
-
-optim_type: str = "rmsprop"
+optim_type: str = "adam"
 learning_rate: float = 1e-4
 weight_decay: float = 1e-8
 momentum: float = 0.999
 
+# Unet parameters
+bilinear: bool = False
 unet_base_exp: int = 6
 unet_dims: List = []
 for i in range(5):
@@ -42,12 +43,11 @@ for i in range(5):
 
 
 # ----- Loading data into dataloaders
-df = pd.read_csv(CSV_FILE)
-df.info()
+if data_set == "custom":
+    X_train, X_test = get_custom_train_test_datasets(test_size=0.15)
+elif data_set == "pascal":
+    X_train, X_test = get_pascal_train_test_datasets(test_size=0.30)
 
-X_train, X_test = train_test_split(df, test_size=0.15)
-X_train = CustomDataset(X_train, data_dir=DATA_DIR)
-X_test = CustomDataset(X_test, data_dir=DATA_DIR)
 print(f"Size of Train Dataset : {len(X_train)}")
 print(f"Size of Valid Dataset : {len(X_test)}")
 
@@ -68,7 +68,7 @@ print(f"num of batches in train: {len(train_loader)}, and test: {len(test_loader
 # ----- instantiate model
 model = UNet(n_channels=3,
              n_classes=1,
-             bilinear=False,
+             bilinear=bilinear,
              ddims=unet_dims,
              UQ=True,
              )

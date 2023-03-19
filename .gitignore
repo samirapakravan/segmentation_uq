@@ -14,3 +14,4 @@
 *.pt
 __pycache__
 output
+data/VOC
