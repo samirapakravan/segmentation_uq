@@ -1,8 +1,6 @@
 from typing import List
 import os
-import pdb
 import tqdm
-from functools import partial
 import pandas as pd
 import matplotlib.pyplot as plt 
 
@@ -10,7 +8,6 @@ from sklearn.model_selection import train_test_split
 import torch 
 
 from segment.helper import show_image
-from segment.nn_models import UNet
 from segment.dataset import CustomDataset
 from segment.inference import inference
 

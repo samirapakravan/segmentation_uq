@@ -31,7 +31,7 @@ amp: bool = True
 gradient_clipping: float = 1.0
 
 optim_type: str = "rmsprop"
-learning_rate: float = 1e-5
+learning_rate: float = 1e-4
 weight_decay: float = 1e-8
 momentum: float = 0.999
 
@@ -107,15 +107,13 @@ for i in range(epochs):
         with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=amp):
             masks_pred = model(images)
             loss = criterion(masks_pred, masks.float())
-            loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred.squeeze(1)), masks.float())
+            loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred), masks.float())
 
         optimizer.zero_grad(set_to_none=True)
         grad_scaler.scale(loss).backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), gradient_clipping)
         grad_scaler.step(optimizer)
         grad_scaler.update()
-        # loss.backward()
-        # optimizer.step()
 
     train_losses.append(loss.detach().cpu().numpy())
     with torch.no_grad():
@@ -124,7 +122,7 @@ for i in range(epochs):
             masks = masks.to(device)
             masks_pred = model(images)
             t_loss = criterion(masks_pred, masks.float())
-            t_loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred.squeeze(1)), masks.float())
+            t_loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred), masks.float())
 
         test_losses.append(t_loss.detach().cpu().numpy())
         print(f'Epoch:{i}, train_loss: {loss}, test_loss: {t_loss}')

@@ -12,3 +12,5 @@
 
 *.pyc
 *.pt
+__pycache__
+output
