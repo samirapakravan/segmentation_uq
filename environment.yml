@@ -1,0 +1,19 @@
+name: segment_uq
+channels:
+  - nvidia
+  - pytorch
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8.2
+  - pandas=1.4.4
+  - matplotlib
+  - tqdm
+  - black
+  - pytorch 
+  - torchvision 
+  - torchaudio 
+  - pytorch-cuda=11.7
+  - pip
+  - pip:
+      - -r requirements.txt

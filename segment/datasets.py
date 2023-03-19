@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import urllib.request
 import tarfile
-import shutil
 import cv2
 import albumentations as A
 

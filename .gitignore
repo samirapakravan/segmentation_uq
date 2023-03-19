@@ -13,6 +13,8 @@
 .viminfo
 *.pyc
 *.pt
+.empty
+.conda
 __pycache__
 output
 data/VOC
