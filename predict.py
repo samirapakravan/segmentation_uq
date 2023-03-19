@@ -17,8 +17,9 @@ num_predictions: int = 10 # number of images to segment from the dataset
 num_monte_carlo: int = 100 # number of evaluations for each image for UQ
 
 # dataset
-DataSets: List[str] = ["custom", "pascal"] 
-data_set : str = DataSets[1]
+DataSets: List[str] = ["custom", "pascal"]
+data_set : str = DataSets[0]
+output_path: str = os.path.join("/workspace/output", data_set)
 
 # model
 bilinear: bool = False
@@ -30,7 +31,7 @@ for i in range(5):
 
 # ----- Loading data into dataloaders
 if data_set == "custom":
-    X_pred, _ = get_custom_train_test_datasets(test_size=0.01)
+    X_pred, _ = get_custom_train_test_datasets(test_size=0.01, predict_only=True)
 elif data_set == "pascal":
     X_pred, _ = get_pascal_train_test_datasets(test_size=0.01)
 print(f"Size of Predict Dataset : {len(X_pred)}")
@@ -57,7 +58,6 @@ def save_image_mask_avg_std(idx, image, mask, avg_out, std_out):
     plt.savefig(os.path.join(output_path, filename))
     plt.close()
 
-output_path = '/workspace/output'
 os.makedirs(output_path, exist_ok=True)
 
 avg_out = torch.zeros_like(X_pred[0][1]).to(device=device)

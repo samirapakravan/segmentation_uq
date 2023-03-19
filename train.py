@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from tqdm import tqdm
 
-from segmentation_models_pytorch.losses import DiceLoss # for image segmentation task. It supports binary, multiclass and multilabel cases
+from segmentation_models_pytorch.losses import DiceLoss # for image segmentation task
 import torch 
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -12,7 +12,8 @@ from torchsummary import summary
 from segment.helper import show_image, plot_loss
 from segment.nn_models import UNet
 from segment.datasets import (get_custom_train_test_datasets,
-                              get_pascal_train_test_datasets,)
+                              get_pascal_train_test_datasets,
+                              )
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -84,13 +85,13 @@ criterion = nn.CrossEntropyLoss() if model.n_classes > 1 else nn.BCEWithLogitsLo
 if optim_type=="adam":
     optimizer =  torch.optim.Adam(model.parameters(),
                                   lr=learning_rate,
-                                  weight_decay=weight_decay)
+                                  weight_decay=weight_decay,)
 elif optim_type=="rmsprop":
     optimizer = torch.optim.RMSprop(model.parameters(),
                                     lr=learning_rate,
                                     weight_decay=weight_decay,
                                     momentum=momentum,
-                                    foreach=True)
+                                    foreach=True,)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
 grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
 
@@ -101,6 +102,8 @@ test_losses = []
 best_test_loss= np.Inf
 
 for i in range(epochs):
+    # ---- train
+    train_epoch_loss = 0.0
     for images, masks in tqdm(train_loader):
         images =  images.to(device)
         masks = masks.to(device)
@@ -108,30 +111,33 @@ for i in range(epochs):
             masks_pred = model(images)
             loss = criterion(masks_pred, masks.float())
             loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred), masks.float())
-
+        train_epoch_loss += loss / len(train_loader)
         optimizer.zero_grad(set_to_none=True)
         grad_scaler.scale(loss).backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), gradient_clipping)
         grad_scaler.step(optimizer)
         grad_scaler.update()
 
-    train_losses.append(loss.detach().cpu().numpy())
+    # ---- test
     with torch.no_grad():
+        test_epoch_loss = 0.0
         for images, masks in tqdm(test_loader):
             images =  images.to(device)
             masks = masks.to(device)
             masks_pred = model(images)
             t_loss = criterion(masks_pred, masks.float())
             t_loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred), masks.float())
-
-        test_losses.append(t_loss.detach().cpu().numpy())
-        print(f'Epoch:{i}, train_loss: {loss}, test_loss: {t_loss}')
-        scheduler.step(t_loss)
-
-        if t_loss < best_test_loss:
+            test_epoch_loss += t_loss / len(test_loader)
+        scheduler.step(test_epoch_loss)
+        if test_epoch_loss < best_test_loss:
             torch.save(model.state_dict(), 'best_model.pt')
             print('MODEL SAVED')
-            best_test_loss = t_loss
+            best_test_loss = test_epoch_loss
+
+    # ---- logging
+    train_losses.append(train_epoch_loss.detach().cpu().numpy())
+    test_losses.append(test_epoch_loss.detach().cpu().numpy())
+    print(f'Epoch:{i}, train_loss: {train_epoch_loss}, test_loss: {test_epoch_loss}')
 
 
 # ----- Inference

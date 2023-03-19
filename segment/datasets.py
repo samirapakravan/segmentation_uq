@@ -49,6 +49,7 @@ class CustomDataset(Dataset):
 def get_custom_train_test_datasets(csv_file: str = '/workspace/data/Human-Segmentation-Dataset-master/train.csv',
                                    data_dir: str = '/workspace/data/',
                                    test_size: float = 0.15,
+                                   predict_only: bool = False,
                                    ):
     url = "https://github.com/parth1620/Human-Segmentation-Dataset-master/archive/refs/heads/master.zip"
     filename="Human-Segmentation-Dataset-master"
@@ -60,8 +61,8 @@ def get_custom_train_test_datasets(csv_file: str = '/workspace/data/Human-Segmen
     df = pd.read_csv(csv_file)
     df.info()
     X_train, X_test = train_test_split(df, test_size=test_size)
-    X_train = CustomDataset(X_train, data_dir=data_dir)
-    X_test = CustomDataset(X_test, data_dir=data_dir)
+    X_train = CustomDataset(X_train, data_dir=data_dir, predict_only=predict_only)
+    X_test = CustomDataset(X_test, data_dir=data_dir, predict_only=predict_only)
     return X_train, X_test
   
 
