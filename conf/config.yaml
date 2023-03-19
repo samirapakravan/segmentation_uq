@@ -1,3 +1,4 @@
+exp_name: segmentation_uq
 
 # Trainer
 trainer:
