@@ -2,6 +2,7 @@ from typing import List
 import numpy as np 
 import matplotlib.pyplot as plt 
 from tqdm import tqdm
+from omegaconf import OmegaConf
 
 from segmentation_models_pytorch.losses import DiceLoss # for image segmentation task
 import torch 
@@ -19,25 +20,27 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # ----- Parameters
+cfg = OmegaConf.load("conf/config.yaml")
+
 # Data
 DataSets: List[str] = ["custom", "pascal"] 
-data_set : str = DataSets[1]
+data_set : str = cfg.trainer.data_set
 
 # Trainer
-epochs: int = 50
-batch_size: int = 1
+epochs: int = cfg.trainer.epochs
+batch_size: int = cfg.trainer.batch_size
 
 # optimizer parameters
-amp: bool = True
-gradient_clipping: float = 1.0
-optim_type: str = "adam"
-learning_rate: float = 1e-4
-weight_decay: float = 1e-8
-momentum: float = 0.999
+amp: bool = cfg.optim.amp
+gradient_clipping: float = cfg.optim.gradient_clipping
+optim_type: str = cfg.optim.optim_type
+learning_rate: float = cfg.optim.learning_rate
+weight_decay: float = cfg.optim.weight_decay
+momentum: float = cfg.optim.momentum
 
 # Unet parameters
-bilinear: bool = False
-unet_base_exp: int = 6
+bilinear: bool = cfg.model.bilinear
+unet_base_exp: int = cfg.model.unet_base_exp
 unet_dims: List = []
 for i in range(5):
     unet_dims.append(2**(unet_base_exp + i))

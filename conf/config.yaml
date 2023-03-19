@@ -1,0 +1,26 @@
+
+# Trainer
+trainer:
+  epochs: 50
+  batch_size: 1
+  data_set : pascal # ["custom", "pascal"] 
+
+# optimizer parameters
+optim:
+  amp: True
+  gradient_clipping: 1.0
+  optim_type: adam
+  learning_rate: 1e-4
+  weight_decay: 1e-8
+  momentum:  0.999
+
+# Unet parameters
+model:
+  bilinear: False
+  unet_base_exp: 6
+
+# Prediction and Uncertainty Quantification Post-Processing
+predict:
+  num_predictions: 10 # number of images to segment from the dataset
+  num_monte_carlo: 100 # number of evaluations for each image for UQ
+  data_set : pascal # ["custom", "pascal"] 

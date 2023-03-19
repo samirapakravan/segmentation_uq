@@ -9,7 +9,8 @@
 .ssh
 .vscode-server
 .vscode
-
+.config
+.viminfo
 *.pyc
 *.pt
 __pycache__

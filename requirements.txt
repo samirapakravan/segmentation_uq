@@ -2,3 +2,4 @@ segmentation-models-pytorch
 git+https://github.com/albumentations-team/albumentations
 opencv-contrib-python
 opencv-python
+omegaconf

@@ -2,7 +2,9 @@ from typing import List
 import os
 import tqdm
 import matplotlib.pyplot as plt 
-import torch 
+from omegaconf import OmegaConf
+
+import torch
 
 from segment.helper import show_image
 from segment.datasets import (get_custom_train_test_datasets,
@@ -13,17 +15,19 @@ from segment.inference import inference
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ----- Parameters
-num_predictions: int = 10 # number of images to segment from the dataset
-num_monte_carlo: int = 100 # number of evaluations for each image for UQ
+cfg = OmegaConf.load("conf/config.yaml")
+
+num_predictions: int = cfg.predict.num_predictions # number of images to segment from the dataset
+num_monte_carlo: int = cfg.predict.num_monte_carlo # number of evaluations for each image for UQ
 
 # dataset
 DataSets: List[str] = ["custom", "pascal"]
-data_set : str = DataSets[0]
+data_set : str = cfg.predict.data_set
 output_path: str = os.path.join("/workspace/output", data_set)
 
 # model
-bilinear: bool = False
-unet_base_exp: int = 6
+bilinear: bool = cfg.model.bilinear
+unet_base_exp: int = cfg.model.unet_base_exp
 unet_dims: List = []
 for i in range(5):
     unet_dims.append(2**(unet_base_exp + i))
