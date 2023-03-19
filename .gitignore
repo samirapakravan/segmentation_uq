@@ -1,0 +1,14 @@
+.bash_history
+.cache
+.dotnet
+.gitconfig
+.gnupg
+.ipython
+.local
+.python_history
+.ssh
+.vscode-server
+.vscode
+
+*.pyc
+*.pt
