@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt 
 
 
@@ -38,3 +39,18 @@ def plot_loss(epochs, train_losses, test_losses):
     plt.xlabel('epoch', fontsize=20)
     plt.legend(fontsize=20)
     plt.tight_layout()
+
+
+def save_image_mask_out(output_path, idx, image, mask, out):
+    os.makedirs(output_path, exist_ok=True)
+    show_image(image, mask, out.detach().cpu().squeeze(0))
+    filename = f'pred_{idx}_.png'
+    plt.savefig(os.path.join(output_path, filename))
+    plt.close()
+
+def save_image_mask_avg_std(output_path, idx, image, mask, avg_out, std_out):
+    os.makedirs(output_path, exist_ok=True)
+    show_image(image, mask, avg_out.detach().cpu(), std_out.detach().cpu())
+    filename = f'pred_{idx}.png'
+    plt.savefig(os.path.join(output_path, filename))
+    plt.close()

@@ -22,6 +22,6 @@ model:
 
 # Prediction and Uncertainty Quantification Post-Processing
 predict:
-  num_predictions: 10 # number of images to segment from the dataset
+  num_predictions: 100 # number of images to segment from the dataset
   num_monte_carlo: 100 # number of evaluations for each image for UQ
   data_set : pascal # ["custom", "pascal"] 
