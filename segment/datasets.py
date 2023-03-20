@@ -58,11 +58,11 @@ class CustomDataset(Dataset):
 
 
 class VocDataset(Dataset):
-  def __init__(self, url, path):
-    if not os.path.exists(path):
-      self.get_archive(path, url)
-      self.extract(path)
-    self.root = os.path.join(path, 'VOCdevkit/VOC2012')
+  def __init__(self, save_path: str):
+    if not os.path.exists(save_path):
+      self.get_archive(save_path)
+      self.extract(save_path)
+    self.root = os.path.join(save_path, 'VOCdevkit/VOC2012')
     self.target_dir = os.path.join(self.root, 'SegmentationClass')
     self.images_dir = os.path.join(self.root, 'JPEGImages')
     file_list = os.path.join(self.root, 'ImageSets/Segmentation/trainval.txt')
@@ -89,15 +89,16 @@ class VocDataset(Dataset):
     transformed_mask = torch.round(torch.Tensor(transformed_mask) / 255.0)
     return transformed_image, transformed_mask
   
-  def get_archive(self, path, url, filename='devkit'):
-    os.makedirs(path, exist_ok=True)
-    urllib.request.urlretrieve(url, f"{path}/{filename}.tar")
+  def get_archive(self, save_path, filename='devkit'):
+    os.makedirs(save_path, exist_ok=True)
+    url = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
+    urllib.request.urlretrieve(url, f"{save_path}/{filename}.tar")
 
-  def extract(self, path, filename='devkit'):
-    tar_file = tarfile.open(f"{path}/{filename}.tar")
-    tar_file.extractall(path)
+  def extract(self, save_path, filename='devkit'):
+    tar_file = tarfile.open(f"{save_path}/{filename}.tar")
+    tar_file.extractall(save_path)
     tar_file.close()
-    os.remove(f"{path}/{filename}.tar")
+    os.remove(f"{save_path}/{filename}.tar")
 
 
 class CarvanaDataset(Dataset):
@@ -162,11 +163,10 @@ def get_custom_train_test_datasets(csv_file: str = '/workspace/data/Human-Segmen
     return X_train, X_test
 
 
-def get_pascal_train_test_datasets(url: str = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar',
-                                   path: str = '/workspace/data/VOC',
+def get_pascal_train_test_datasets(save_path: str = '/workspace/data/VOC',
                                    test_size: float = 0.20,
                                    ):
-    data = VocDataset(url=url, path=path)
+    data = VocDataset(save_path=save_path)
     X_train, X_test = train_test_split(data, test_size=test_size)
     return X_train, X_test
 
@@ -186,6 +186,6 @@ def get_data_set(data_set: str = "custom", test_size: float = 0.15, predict_only
         X_train, X_test = get_custom_train_test_datasets(test_size=test_size, predict_only=predict_only)
     elif data_set == "pascal":
         X_train, X_test = get_pascal_train_test_datasets(test_size=test_size)
-    elif data_set == 'carvana':
+    elif data_set == "carvana":
        X_train, X_test = get_carvana_train_test_datasets(test_size=test_size)
     return X_train, X_test
