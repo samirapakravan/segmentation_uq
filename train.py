@@ -29,6 +29,7 @@ data_set : str = cfg.trainer.data_set
 # Trainer
 epochs: int = cfg.trainer.epochs
 batch_size: int = cfg.trainer.batch_size
+test_size: float = cfg.trainer.test_size
 
 # optimizer parameters
 amp: bool = cfg.optim.amp
@@ -48,9 +49,9 @@ for i in range(5):
 
 # ----- Loading data into dataloaders
 if data_set == "custom":
-    X_train, X_test = get_custom_train_test_datasets(test_size=0.15)
+    X_train, X_test = get_custom_train_test_datasets(test_size=test_size)
 elif data_set == "pascal":
-    X_train, X_test = get_pascal_train_test_datasets(test_size=0.30)
+    X_train, X_test = get_pascal_train_test_datasets(test_size=test_size)
 
 print(f"Size of Train Dataset : {len(X_train)}")
 print(f"Size of Valid Dataset : {len(X_test)}")

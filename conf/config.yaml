@@ -4,6 +4,7 @@ exp_name: segmentation_uq
 trainer:
   epochs: 30
   batch_size: 1
+  test_size: 0.3 # for train/test splitting: pascal: 0.3, custom: 0.15
   data_set : pascal # ["custom", "pascal"] 
 
 # optimizer parameters
@@ -15,7 +16,7 @@ optim:
   weight_decay: 1e-8
   momentum:  0.999
 
-# Unet parameters
+# U-net parameters
 model:
   bilinear: False
   unet_base_exp: 6 # 2**unet_base_exp is number of channels at input of U-net; there are 5 blocks in encoder and decoder
