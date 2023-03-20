@@ -12,9 +12,7 @@ from torchsummary import summary
 
 from segment.helper import show_image, plot_loss
 from segment.nn_models import UNet
-from segment.datasets import (get_custom_train_test_datasets,
-                              get_pascal_train_test_datasets,
-                              )
+from segment.datasets import get_data_set
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -23,7 +21,6 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cfg = OmegaConf.load("conf/config.yaml")
 
 # Data
-DataSets: List[str] = ["custom", "pascal"] 
 data_set : str = cfg.trainer.data_set
 
 # Trainer
@@ -48,11 +45,7 @@ for i in range(5):
 
 
 # ----- Loading data into dataloaders
-if data_set == "custom":
-    X_train, X_test = get_custom_train_test_datasets(test_size=test_size)
-elif data_set == "pascal":
-    X_train, X_test = get_pascal_train_test_datasets(test_size=test_size)
-
+X_train, X_test = get_data_set(data_set=data_set, test_size=test_size)
 print(f"Size of Train Dataset : {len(X_train)}")
 print(f"Size of Valid Dataset : {len(X_test)}")
 

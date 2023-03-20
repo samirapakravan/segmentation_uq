@@ -8,9 +8,7 @@ import torch
 from segment.inference import inference
 from segment.analytics import uq_analytics
 from segment.helper import save_image_mask_avg_std
-from segment.datasets import (get_custom_train_test_datasets,
-                              get_pascal_train_test_datasets,)
-
+from segment.datasets import get_data_set
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -21,7 +19,6 @@ num_predictions: int = cfg.predict.num_predictions # number of images to segment
 num_monte_carlo: int = cfg.predict.num_monte_carlo # number of evaluations for each image for UQ
 
 # dataset
-DataSets: List[str] = ["custom", "pascal"]
 data_set : str = cfg.predict.data_set
 output_path: str = os.path.join("/workspace/output", data_set)
 
@@ -34,10 +31,7 @@ for i in range(5):
 
 
 # ----- Loading data into dataloaders
-if data_set == "custom":
-    X_pred, _ = get_custom_train_test_datasets(test_size=0.01, predict_only=True)
-elif data_set == "pascal":
-    X_pred, _ = get_pascal_train_test_datasets(test_size=0.01)
+X_pred, _ = get_data_set(data_set=data_set, test_size=0.01, predict_only=True)
 print(f"Size of Predict Dataset : {len(X_pred)}")
 
 

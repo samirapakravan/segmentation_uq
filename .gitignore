@@ -15,7 +15,12 @@
 *.pt
 .empty
 .conda
+
+*.png
+.kaggle
+
 __pycache__
+
 output
 data/VOC
-*.png
+data/Carvana
