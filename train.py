@@ -87,6 +87,9 @@ def compose_loss_fn(n_classes: int = 1,
     """The overall loss function is a linear combination of BCE/CE and Dice"""
     criterion = nn.CrossEntropyLoss() if n_classes > 1 else nn.BCEWithLogitsLoss()
     dice_loss = DiceLoss(mode='binary')
+    total = 0.5 * (alpha + beta)
+    alpha /= total 
+    beta /= total 
     def loss_fn(masks_pred, masks):
         loss = alpha * criterion(masks_pred, masks.float())
         loss += beta * dice_loss(torch.sigmoid(masks_pred), masks.float())

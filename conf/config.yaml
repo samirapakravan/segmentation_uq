@@ -3,7 +3,7 @@ exp_name: segmentation_uq
 # Trainer
 trainer:
   epochs: 30
-  batch_size: 8
+  batch_size: 1
   data_set : pascal # ["custom", "pascal"] 
 
 # optimizer parameters
@@ -19,9 +19,9 @@ optim:
 model:
   bilinear: False
   unet_base_exp: 6 # 2**unet_base_exp is number of channels at input of U-net; there are 5 blocks in encoder and decoder
-  loss:
-    bce_frac: 1.0 # weighting fraction in range [0.0, 1.0] for BCE/CE loss term
-    dice_frac: 1.0 # weighting fraction in range [0.0, 1.0] for Dice loss term
+  loss: # fractions should sum to 2.0
+    bce_frac: 1.0 # relative weighting fraction for BCE/CE loss term
+    dice_frac: 1.0 # relative weighting fraction for Dice loss term
 
 # Prediction and Uncertainty Quantification Post-Processing
 predict:

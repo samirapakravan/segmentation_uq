@@ -52,7 +52,7 @@ model = inference(n_channels=3,
 # ------ Quantify Uncertainties
 uqx = uq_analytics(cfg=cfg,
                    save_path='/workspace/output/analytics',
-                   base_filename='uq')
+                   base_filename=cfg.exp_name)
 
 avg_out = torch.zeros_like(X_pred[0][1]).to(device=device)
 std_out = torch.zeros_like(X_pred[0][1]).to(device=device)
