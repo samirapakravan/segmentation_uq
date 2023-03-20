@@ -30,14 +30,17 @@ class uq_analytics:
                       cfg: OmegaConf,
                       base_filename: str):
         suffix = '-'.join("%s=%r" % (key,val) for (key,val) in cfg.model.items())
+        suffix += '-' + '-'.join("%s=%r" % (key,val) for (key,val) in cfg.predict.items())
+        suffix += '-' + '-'.join("%s=%r" % (key,val) for (key,val) in cfg.trainer.items())
         save_filename = base_filename + '-' + suffix + '.pkl'
         return save_filename
 
-    def save_metrics(self):
+    def save_metrics_file(self):
         self.metrics_store = np.array(self.metrics_store)
         with open(self.analytics_filepath, 'wb') as handle: 
             pickle.dump(self.metrics_store, handle)
-        
+    
+    def save_metrics_histogram(self):
         plt.figure(figsize=(8,8))
         plt.hist(self.metrics_store[:,0], bins=10, density=True, color='r', label='Frobenius', histtype='step')
         plt.hist(self.metrics_store[:,1], bins=10, density=True, color='g', label='max value', histtype='step')

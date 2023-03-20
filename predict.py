@@ -74,4 +74,5 @@ for idx in tqdm.trange(min((len(X_pred), num_predictions))):
     uqx.evaluate_uq(std_out=std_out)
 
 # save metrics of uncertainty on all considered images
-uqx.save_metrics()
+uqx.save_metrics_file()
+uqx.save_metrics_histogram()

@@ -81,7 +81,21 @@ summary(model, X_train[0][0].shape)
 
 
 # ----- Loss criterion
-criterion = nn.CrossEntropyLoss() if model.n_classes > 1 else nn.BCEWithLogitsLoss()
+def compose_loss_fn(n_classes: int = 1,
+                    alpha: float = 1.0,
+                    beta: float = 1.0,):
+    """The overall loss function is a linear combination of BCE/CE and Dice"""
+    criterion = nn.CrossEntropyLoss() if n_classes > 1 else nn.BCEWithLogitsLoss()
+    dice_loss = DiceLoss(mode='binary')
+    def loss_fn(masks_pred, masks):
+        loss = alpha * criterion(masks_pred, masks.float())
+        loss += beta * dice_loss(torch.sigmoid(masks_pred), masks.float())
+        return loss
+    return loss_fn
+
+loss_fn = compose_loss_fn(n_classes=model.n_classes,
+                          alpha=cfg.model.loss.bce_frac,
+                          beta=cfg.model.loss.dice_frac)
 
 
 # ----- Optimizer + Scheduler + AMP
@@ -112,8 +126,8 @@ for i in range(epochs):
         masks = masks.to(device)
         with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=amp):
             masks_pred = model(images)
-            loss = criterion(masks_pred, masks.float())
-            loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred), masks.float())
+            loss = loss_fn(masks_pred, masks)
+
         train_epoch_loss += loss / len(train_loader)
         optimizer.zero_grad(set_to_none=True)
         grad_scaler.scale(loss).backward()
@@ -128,8 +142,7 @@ for i in range(epochs):
             images =  images.to(device)
             masks = masks.to(device)
             masks_pred = model(images)
-            t_loss = criterion(masks_pred, masks.float())
-            t_loss += DiceLoss(mode='binary')(torch.sigmoid(masks_pred), masks.float())
+            t_loss = loss_fn(masks_pred, masks)
             test_epoch_loss += t_loss / len(test_loader)
         scheduler.step(test_epoch_loss)
         if test_epoch_loss < best_test_loss:
@@ -150,7 +163,7 @@ idx = 5
 image, mask = X_test[idx]
 out = model(image.to(device).unsqueeze(0)) # (C,H,W) --> (1,C,H,W)  to add batch dim
 out = torch.sigmoid(out)
-out = (out>0.5)*0.1
+out = (out > 0.5) * 0.1
 
 show_image(image, mask, out.detach().cpu().squeeze(0))
 plt.savefig('test.png')
