@@ -2,30 +2,30 @@ exp_name: segmentation_uq
 
 # Trainer
 trainer:
-  epochs: 30
+  epochs: 50
   batch_size: 1
-  test_size: 0.3 # for train/test splitting: pascal: 0.3, custom: 0.15, carvana: 0.3
-  data_set : carvana # ["custom", "pascal", "carvana"] 
+  test_size: 0.3  # for train/test splitting: pascal: 0.3, custom: 0.15, carvana: 0.3
+  data_set : mads # ["custom", "pascal", "carvana", "mads"] 
 
 # optimizer parameters
 optim:
   amp: True
   gradient_clipping: 1.0
-  optim_type: adam
-  learning_rate: 1e-4
+  optim_type: adam     # [rmsprop, adam]
+  learning_rate: 1e-3
   weight_decay: 1e-8
   momentum:  0.999
 
 # U-net parameters
 model:
   bilinear: False
-  unet_base_exp: 6 # 2**unet_base_exp is number of channels at input of U-net; there are 5 blocks in encoder and decoder
-  loss: # fractions should sum to 2.0
-    bce_frac: 1.0 # relative weighting fraction for BCE/CE loss term
-    dice_frac: 1.0 # relative weighting fraction for Dice loss term
+  unet_base_exp: 5  # 2**unet_base_exp is number of channels at input of U-net; there are 5 blocks in encoder and decoder
+  loss:             # fractions should sum to 2.0
+    bce_frac: 1.0   # relative weighting fraction for BCE/CE loss term
+    dice_frac: 0.0  # relative weighting fraction for Dice loss term
 
 # Prediction and Uncertainty Quantification Post-Processing
 predict:
-  num_predictions: 100 # number of images to segment from the dataset
-  num_monte_carlo: 100 # number of evaluations for each image for UQ
-  data_set : carvana # ["custom", "pascal", "carvana"] 
+  num_predictions: 100  # number of images to segment from the dataset
+  num_monte_carlo: 100  # number of evaluations for each image for UQ
+  data_set : ${trainer.data_set}     # ["custom", "pascal", "carvana"] 

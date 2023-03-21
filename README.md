@@ -2,7 +2,7 @@
 ## Image Segmentation with Uncertainty Quantification
 The algorithm is based on the paper https://pubmed.ncbi.nlm.nih.gov/31729078/ 
 
-A U-Net architecture (with MC-Dropout layers) is trained over two vision datasets to predict segmentation tasks. 
+A U-Net architecture (with MC-Dropout layers) is trained over 4 vision datasets to predict segmentation tasks. 
 
 ### With Conda
 Create the conda environment by `conda env create` from the repository, the new environment will be built based on `environment.yml` instructions. Note that the contents of `requirements.txt` will also be used to build the ``segment_uq`` environment.

@@ -50,7 +50,7 @@ class uq_analytics:
         plt.axvline(x=np.median(self.metrics_store[:,2]), color='b', linestyle='--', linewidth=3)
         plt.ylabel('density', fontsize=25)
         plt.xlabel('uncertainty', fontsize=25)
-        plt.ylim([0, 1])
+        # plt.ylim([0, 1])
         plt.legend(fontsize=10)
         plt.savefig(self.analytics_filepath + '.png')
         plt.close()

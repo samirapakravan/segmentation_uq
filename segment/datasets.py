@@ -137,6 +137,42 @@ class CarvanaDataset(Dataset):
     os.remove(f"{path}/train_masks.zip")
     os.remove(f"{path}/train.zip")
     
+class MADSDataset(Dataset):
+  def __init__(self, save_path: str):
+    if not os.path.exists(save_path):
+      self.get_archive(save_path)
+      self.extract(save_path)
+    self.transforms = T.Compose([T.Resize((256, 256)),
+                                 T.ToTensor(),])
+    file_path = os.path.join(save_path, 'images/*.*')
+    file_mask_path = os.path.join(save_path, 'masks/*.*')
+    self.images = sorted(glob(file_path))
+    self.image_mask = sorted(glob(file_mask_path))
+
+  def __getitem__(self, index: int):
+    image = Image.open(self.images[index]).convert('RGB')
+    image_mask = Image.open(self.image_mask[index]).convert('L')
+    if self.transforms:
+        image = self.transforms(image)
+        image_mask = self.transforms(image_mask)
+    return image, image_mask
+
+  def __len__(self):
+      return len(self.images)
+
+  def get_archive(self, path):
+    os.makedirs(path, exist_ok=True)
+    gdown.download(url='https://drive.google.com/file/d/1k6eIOc9VbXH5IEzsyAS3YnXRf2z1_Vbz/view?usp=share_link', output = f"{path}/masks.zip", quiet=False, fuzzy=True)
+    gdown.download(url='https://drive.google.com/file/d/1zQg9atOi6gNi4uDQFoYgZZplrHb7OGwJ/view?usp=share_link', output = f"{path}/images.zip", quiet=False, fuzzy=True)
+
+  def extract(self, path):
+    with ZipFile(f"{path}/masks.zip", 'r') as zf:
+      zf.extractall(path)
+    with ZipFile(f"{path}/images.zip", 'r') as zf:
+      zf.extractall(path)
+    os.remove(f"{path}/masks.zip")
+    os.remove(f"{path}/images.zip")
+
 
 
 
@@ -177,6 +213,14 @@ def get_carvana_train_test_datasets(save_path: str = '/workspace/data/Carvana',
   data = CarvanaDataset(save_path=save_path)
   X_train, X_test = train_test_split(data, test_size=test_size)
   return X_train, X_test
+
+
+def get_mads_train_test_datasets(save_path: str = '/workspace/data/MADS',
+                                    test_size: float = 0.3,
+                                    ):
+  data = MADSDataset(save_path=save_path)
+  X_train, X_test = train_test_split(data, test_size=test_size)
+  return X_train, X_test
   
 
 
@@ -188,4 +232,6 @@ def get_data_set(data_set: str = "custom", test_size: float = 0.15, predict_only
         X_train, X_test = get_pascal_train_test_datasets(test_size=test_size)
     elif data_set == "carvana":
        X_train, X_test = get_carvana_train_test_datasets(test_size=test_size)
+    elif data_set == "mads":
+       X_train, X_test = get_mads_train_test_datasets(test_size=test_size)
     return X_train, X_test
