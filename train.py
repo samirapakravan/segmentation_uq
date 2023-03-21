@@ -86,7 +86,7 @@ def compose_loss_fn(n_classes: int = 1,
     beta /= total 
     def loss_fn(masks_pred, masks):
         loss = alpha * criterion(masks_pred, masks.float())
-        loss += beta * dice_loss(torch.sigmoid(masks_pred), masks.float())
+        loss += beta * dice_loss(masks_pred, masks.float())
         return loss
     return loss_fn
 
@@ -106,6 +106,11 @@ elif optim_type=="rmsprop":
                                     weight_decay=weight_decay,
                                     momentum=momentum,
                                     foreach=True,)
+elif optim_type=="sgd":    
+    optimizer = torch.optim.SGD(model.parameters(), 
+                                lr=learning_rate, 
+                                momentum=momentum)
+
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
 grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
 

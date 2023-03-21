@@ -4,6 +4,7 @@ import tqdm
 from omegaconf import OmegaConf
 
 import torch
+import torch.nn.functional as F
 
 from segment.inference import inference
 from segment.analytics import uq_analytics
@@ -32,7 +33,7 @@ for i in range(5):
 
 # ----- Loading data into dataloaders
 X_pred, _ = get_data_set(data_set=data_set, test_size=0.01, predict_only=True)
-print(f"Size of Predict Dataset : {len(X_pred)}")
+print(f"\nSize of Predict Dataset : {len(X_pred)}")
 
 
 # ----- Load trained model
@@ -47,6 +48,34 @@ model = inference(n_channels=3,
 uqx = uq_analytics(cfg=cfg,
                    save_path='/workspace/output/analytics',
                    base_filename=cfg.exp_name)
+
+
+# ------ Evaluation
+def eval(output, mask, eps=1e-5):
+    with torch.no_grad():
+        output = output.squeeze().to(device=device)
+        mask = mask.squeeze().to(device=device)
+
+        preds = (torch.sigmoid(output) > 0.5).float()
+        num_correct = ((preds == mask).sum())
+        num_pixels = torch.numel(preds)
+        pixel_acc = num_correct/num_pixels
+
+        dice_score = (2 * (preds * mask).sum()) / ((preds + mask).sum() + eps)
+
+    return pixel_acc, dice_score
+
+pixel_acc_t = dice_score_t = 0
+for idx in tqdm.trange(min((len(X_pred), num_predictions))):
+    output, image, mask = model.predict(data=X_pred, idx=idx)
+    pixel_acc, dice_score = eval(output, mask,eps=1e-5)
+    pixel_acc_t += pixel_acc
+    dice_score_t += dice_score
+
+n = min((len(X_pred), num_predictions))    
+print(f"\n Accuracy:{pixel_acc_t/n :<3.5f},\n Dice_score:{dice_score_t/n :<3.5f}\n")
+
+#-------------
 
 avg_out = torch.zeros_like(X_pred[0][1]).to(device=device)
 std_out = torch.zeros_like(X_pred[0][1]).to(device=device)

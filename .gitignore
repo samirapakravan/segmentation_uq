@@ -12,7 +12,6 @@
 .config
 .viminfo
 *.pyc
-*.pt
 .empty
 .conda
 

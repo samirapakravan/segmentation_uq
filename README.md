@@ -4,12 +4,16 @@ The algorithm is based on the paper https://pubmed.ncbi.nlm.nih.gov/31729078/
 
 A U-Net architecture (with MC-Dropout layers) is trained over 4 vision datasets to predict segmentation tasks. 
 
+## Project Report
+A report summarizing implementation and results are provided in [report.pdf](https://github.com/samirapakravan/segmentation_uq/blob/main/report.pdf) in the repository.
+
+## Development
 ### With Conda
 Create the conda environment by `conda env create` from the repository, the new environment will be built based on `environment.yml` instructions. Note that the contents of `requirements.txt` will also be used to build the ``segment_uq`` environment.
 
 Do `conda activate segment_uq` to activate the environment! An advantage of the provided conda environment is it will automatically install the latest version of `pytorch v2.0.0`.
 
-### With Docker
+### With Docker (recommended)
 The docker environment is provided based on a highly optimized pytorch image from NVIDIA NGC. At this point, an optimized version for pytorch 2 is not yet available on NGC.
 
 Create an account on ``ngc.nvidia.com`` and ``Create an API key`` and on your machine do ``docker login nvcr.io``, use the provided user/password to login to the ngc server.
