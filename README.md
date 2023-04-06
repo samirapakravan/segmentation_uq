@@ -1,4 +1,4 @@
-# segment_uq
+
 ![Screenshot](pred_1.png)
 
 
