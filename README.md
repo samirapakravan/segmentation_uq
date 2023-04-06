@@ -1,4 +1,6 @@
 # segment_uq
+![me](https://github.com/samirapakravan/segmentation_uq/pred_1.png)
+
 ## Image Segmentation with Uncertainty Quantification
 The algorithm is based on the paper https://pubmed.ncbi.nlm.nih.gov/31729078/ 
 
